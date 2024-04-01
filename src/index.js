@@ -1,23 +1,54 @@
 const express = require("express");
-const { v4:uuidv4 } = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 
 const app = express();
-app.use(express.json())
+app.use(express.json());
 
-const custumers = [];
+const customers = [];
 
-app.post("/account", (request, response)=>{
+function verifyAccountCPF(request, response, next){
 
-    const { cpf, name } = request.body;
-    const id = uuidv4();
-    custumers.push({
-        cpf,
-        name, 
-        id, 
-        statement: []
-    });
+  const { cpf } = request.headers;
 
-   return response.status(201).send();
-})
+  const customer = customers.find((customer) => customer.cpf === cpf);
+
+  if(!customer){
+    return response.status(400).json({ error: "Custumer not found"})
+  }
+
+  request.customer = customer;
+
+  return next();
+}
+
+app.post("/account", (request, response) => {
+  const { cpf, name } = request.body;
+
+  const customerAlreadExists = customers.some((customer) => customer.cpf === cpf);
+
+  if (customerAlreadExists) {
+    return response.status(400).json({ error: "Customer Already exists!" });
+  }
+
+  customers.push({
+    cpf,
+    name,
+    id: uuidv4(),
+    statement: [],
+  });
+
+  return response.status(201).send();
+});
+
+app.get("/statement", verifyAccountCPF, (request, response) => {
+  const { customer } = request;
+
+  return response.json(customer.statement);
+});
+
+
+
+
 
 app.listen(3333);
+
