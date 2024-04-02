@@ -91,7 +91,7 @@ app.post("/withdraw", verifyIfExixtsAccountCPF, (request, response) => {
   };
 
   customer.statement.push(statementOperation);
-  console.log(amount);
+  
   return response.status(201).send();
 });
 
@@ -105,5 +105,37 @@ app.get("/statement/date", verifyIfExixtsAccountCPF, (request, response) => {
   });
 
   return response.json(customer.statement);
+});
+
+app.put("/account", verifyIfExixtsAccountCPF, ( request, response ) => {
+  const { name } = request.body;
+  const { customer } = request;
+
+  customer.name = name;
+
+  return response.status(201).send();
+});
+
+app.get("/account", verifyIfExixtsAccountCPF, ( request, response ) => {
+    const { customer } = request;
+    
+    return response.json(customer);
+});
+
+app.delete("/account", verifyIfExixtsAccountCPF, ( request, response ) => {
+  const { customer } = request;
+  
+  customers.splice(customer, 1);
+
+  return response.status(200).json(customers);
+
+});
+
+app.get("/balance", verifyIfExixtsAccountCPF, ( request, response ) => {
+  const { customer } = request;
+
+  const balance = getBalance(customer.statement);
+  
+  return response.json(balance);
 });
 app.listen(3333);
