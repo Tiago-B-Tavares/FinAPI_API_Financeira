@@ -138,4 +138,6 @@ app.get("/balance", verifyIfExixtsAccountCPF, ( request, response ) => {
   
   return response.json(balance);
 });
-app.listen(3333);
+app.listen(3333, () => {
+  console.log('Servidor rodando na porta 3333');
+});
